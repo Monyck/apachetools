@@ -1,7 +1,4 @@
-#!/bin/perl
- 
-use strict;
-use warnings;
+#!/usr/bin/perl
  
 use NetAddr::IP;
  
@@ -9,29 +6,25 @@ my $network;
 my $remoteIP;
 my @iparray;
 my $found;
+my $file="/etc/httpd/conf.d/all_clients.txt";
 # Turn off I/O buffering
 $| = 1;
  
-open(my $fh, "<", "/etc/httpd/conf.d/all_clients.txt");
-while(<$fh>) { 
-    chomp; 
-    push @iparray, $_;
-} 
-close $fh;
- 
 while (<STDIN>) {
-  my $visitor;
   $remoteIP = $_;
-  chomp $remoteIP;
+  $remoteIP =~ s/[\t\n\f\r]|^\s+|\s+$//g; 
+
+  open(fh, "<", "$file") or die "Can't open $file for read: $!";
+  @iparray=<fh>;
+  #print "$#iparray\n";
+  close $fh;
  
   $visitor = NetAddr::IP->new($remoteIP);
- 
   if ( !defined ($visitor) ) { print "notfound\n"; next; }
   foreach my $cidr (@iparray) {
-    chomp $cidr;
- 
+    $cidr =~ s/[\t\n\f\r]|^\s+|\s+$//g; 
     $network = NetAddr::IP->new($cidr);
- 
+    next if ( "$network" =~ m/^$|^#/ );
     if ( $visitor->within($network) ) {
       $found = 1;
       print "allow\n";
