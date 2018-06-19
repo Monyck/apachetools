@@ -26,7 +26,7 @@ while (<STDIN>) {
  
   $visitor = NetAddr::IP->new($remoteIP);
  
-  if ( !defined ($visitor) ) { next; }
+  if ( !defined ($visitor) ) { print "notfound\n"; next; }
   foreach my $cidr (@iparray) {
     chomp $cidr;
  
